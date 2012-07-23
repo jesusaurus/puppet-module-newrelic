@@ -1,0 +1,11 @@
+# New Relic
+
+A puppet module for managing New Relic monitoring
+
+## Example usage
+
+To install the system monitor, use a class similar to the following, filling in your actual license key:
+
+    class { 'newrelic::sysmond':
+      license => 'THIS_SHOULD_BE_YOUR_LICENSE_KEY',
+    }
