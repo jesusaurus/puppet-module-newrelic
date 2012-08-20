@@ -20,7 +20,30 @@ class newrelic::sysmond (
       package { "newrelic-sysmond":
         require => Apt::Source['newrelic'],
         ensure => latest,
-        notify => Exec['add_license_to_newrelic'],
+      }
+    }
+
+    'RedHat': {
+      yumrepo { "newrelic":
+        enabled   => '1',
+        gpgcheck  => '1',
+        gpgkey    => "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-NewRelic",
+        baseurl   => 'http://yum.newrelic.com/pub/newrelic/el5/$basearch',
+        descr     => 'New Relic packages for Enterprise Linux - $basearch',
+        require   => File['/etc/pki/rpm-gpg/RPM-GPG-KEY-NewRelic'],
+      }
+
+      file { "/etc/pki/rpm-gpg/RPM-GPG-KEY-NewRelic":
+        ensure => present,
+        owner  => root,
+        group  => root,
+        mode   => 0644,
+        source => "puppet:///modules/newrelic/RPM-GPG-KEY-NewRelic"
+      }
+
+      package { "newrelic-sysmond":
+        require => Yumrepo['newrelic'],
+        ensure  => latest,
       }
     }
 
@@ -30,13 +53,15 @@ class newrelic::sysmond (
 
   service { "newrelic-sysmond":
     ensure => running,
-    require => Package['newrelic-sysmond'],
+    require => Exec['add_license_to_newrelic'],
   }
 
   exec { 'add_license_to_newrelic':
     refreshonly => true,
-    path => "/usr/sbin/nrsysmond-config --set license_key=$license",
-    unless => "grep $license /etc/newrelic/nrsysmond.cfg >/dev/null"
+    command     => "/usr/sbin/nrsysmond-config --set license_key=$license",
+    unless      => "/bin/grep -q $license /etc/newrelic/nrsysmond.cfg",
+    require     => Package['newrelic-sysmond'],
   }
 
 }
+# vim: sts=2 sw=2 et #
