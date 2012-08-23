@@ -20,6 +20,7 @@ class newrelic::sysmond (
       package { "newrelic-sysmond":
         require => Apt::Source['newrelic'],
         ensure => latest,
+        notify  => Exec['add_license_to_newrelic'],
       }
     }
 
@@ -44,6 +45,7 @@ class newrelic::sysmond (
       package { "newrelic-sysmond":
         require => Yumrepo['newrelic'],
         ensure  => latest,
+        notify  => Exec['add_license_to_newrelic'],
       }
     }
 
@@ -64,4 +66,4 @@ class newrelic::sysmond (
   }
 
 }
-# vim: sts=2 sw=2 et #
+# vim: sts=2 sw=2 et
